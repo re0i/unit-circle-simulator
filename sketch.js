@@ -36,7 +36,7 @@ function drawGrid(){
 
   for (let x = firstX; x <= endX; x += cellSize){
       stroke(225);
-      line(x, startY, x, endX);
+      line(x, startY, x, endY);
 
       fill(225);
       noStroke();
