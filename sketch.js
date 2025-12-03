@@ -7,8 +7,20 @@ let lastMouseY = 0;
 let isPanning = false;
 
 function drawGrid(){
-  const baseCellSize = 50;
-  const cellSize = baseCellSize;
+  const idealPixelSize = 75; 
+  const approxCellSize = idealPixelSize / zoom;
+
+  let exponent = Math.floor(Math.log10(approxCellSize));
+  let powerOf10 = Math.pow(10, exponent);
+  let cellSize;
+
+  if (approxCellSize / powerOf10 >= 5) {
+      cellSize = powerOf10 * 5;
+  } else if (approxCellSize / powerOf10 >= 2) {
+      cellSize = powerOf10 * 2;
+  } else {
+      cellSize = powerOf10 * 1;
+  }
     
   textSize(12 / zoom);
   fill(1);
