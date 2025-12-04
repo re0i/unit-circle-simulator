@@ -6,7 +6,40 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let isPanning = false;
 
+let r = 200;
+
+function drawPointAndTriangle(angleInDegrees){
+  let theta_rad = degToRad(angleInDegrees);
+
+  let x = r * cos(theta_rad);
+  let y = r * sin(theta_rad);
+
+  stroke(50, 200, 50);
+  fill(50, 200, 50, 100);
+  strokeWeight(2 / zoom);
+
+  triangle(0, 0, x, 0, x, y);
+
+  // Draw the point on the circle
+  noStroke();
+  fill(225, 50, 50);
+  circle(x, y, 10 / zoom);
+
+  fill(225);
+  textSize(10 / zoom);
+  text(`(${x.toFixed(2)}, ${y.toFixed(2)})` , x + (15 / zoom), y - (15 / zoom));
+}
+
+function degToRad(degrees){
+  return degrees * (Math.PI / 180);
+}
+
 function drawGrid(){
+  noFill();
+  stroke(225);
+  strokeWeight(2 / zoom);
+  circle(0, 0, r * 2);
+
   const idealPixelSize = 75; 
   const approxCellSize = idealPixelSize / zoom;
 
@@ -98,5 +131,6 @@ function draw(){
   translate(panX, panY);
   scale(zoom);
   drawGrid();
+  drawPointAndTriangle(20);
   pop();
 }
