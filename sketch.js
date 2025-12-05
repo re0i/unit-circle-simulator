@@ -6,9 +6,12 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let isPanning = false;
 
-let r = 200;
+function drawUnitCircle(angleInDegrees, r){
+  noFill();
+  stroke(225);
+  strokeWeight(2 / zoom);
+  circle(0, 0, r * 2);
 
-function drawPointAndTriangle(angleInDegrees){
   let theta_rad = degToRad(angleInDegrees);
 
   let x = r * cos(theta_rad);
@@ -35,11 +38,6 @@ function degToRad(degrees){
 }
 
 function drawGrid(){
-  noFill();
-  stroke(225);
-  strokeWeight(2 / zoom);
-  circle(0, 0, r * 2);
-
   const idealPixelSize = 75; 
   const approxCellSize = idealPixelSize / zoom;
 
@@ -59,10 +57,10 @@ function drawGrid(){
   fill(1);
   textAlign(CENTER, CENTER);
 
-  let startX = (-panX) / zoom;
-  let endX = (width - panX) / zoom;
-  let startY = (-panY) / zoom;
-  let endY = (height - panY) / zoom;
+  let startX = (-panX - width / 2) / zoom;
+  let endX = (width / 2 - panX) / zoom;
+  let startY = (-panY - height / 2) / zoom;
+  let endY = (height / 2 - panY) / zoom;
 
   let firstX = Math.floor(startX / cellSize) * cellSize;
   let firstY = Math.floor(startY / cellSize) * cellSize;
@@ -122,15 +120,19 @@ function mouseDragged() {
 
 function setup(){
   createCanvas(windowWidth - 40, windowHeight - 40);
-  // background(111);
 }
 
 function draw(){
-  background(0)
+  background(0);
+
+  let r = Number(select('#r').value());
+  let theta = Number(select('#theta').value());
+
   push();
+  translate(width / 2, height / 2);
   translate(panX, panY);
   scale(zoom);
   drawGrid();
-  drawPointAndTriangle(20);
+  drawUnitCircle(theta, r);
   pop();
 }
