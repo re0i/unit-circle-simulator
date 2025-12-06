@@ -5,6 +5,46 @@ let panY = 0;
 let lastMouseX = 0;
 let lastMouseY = 0;
 let isPanning = false;
+let isDragging = false;
+
+let offsetX = 0, offsetY = 0;
+let pointX = 0, pointY = 0;
+
+function screenToWorld(screenX, screenY){
+  let untranslatedX = screenX - width / 2;
+  let untranslatedY = screenY - height / 2;
+
+  let unPannedX = untranslatedX - panX;
+  let unPannedY = untranslatedY - panY;
+
+  let worldX = unPannedX / zoom;
+  let worldY = unPannedY / zoom;
+
+  return createVector(worldX, worldY);
+}
+
+function mousePressed(){
+  let worldMouse = screenToWorld(mouseX, mouseY);
+  let r_point = 10 / zoom;
+  
+  let d = dist(worldMouse.x, worldMouse.y, pointX, pointY);
+
+  if (d < r_point){
+    isDragging = true;
+    offsetX = pointX - worldMouse.x;
+    offsetY = pointY - worldMouse.y;
+    return;
+  }
+
+  isPanning = true;
+  lastMouseX = mouseX;
+  lastMouseY = mouseY;
+}
+
+function mouseReleased(){
+  isDragging = false;
+  isPanning = false;
+}
 
 function drawUnitCircle(angleInDegrees, r){
   noFill();
@@ -14,23 +54,23 @@ function drawUnitCircle(angleInDegrees, r){
 
   let theta_rad = degToRad(angleInDegrees);
 
-  let x = r * cos(theta_rad);
-  let y = r * sin(theta_rad);
+  pointX = r * cos(theta_rad);
+  pointY = r * sin(theta_rad);
 
   stroke(50, 200, 50);
   fill(50, 200, 50, 100);
   strokeWeight(2 / zoom);
 
-  triangle(0, 0, x, 0, x, y);
+  triangle(0, 0, pointX, 0, pointX, pointY);
 
   // Draw the point on the circle
   noStroke();
   fill(225, 50, 50);
-  circle(x, y, 10 / zoom);
+  circle(pointX, pointY, 10 / zoom);
 
   fill(225);
   textSize(10 / zoom);
-  text(`(${x.toFixed(2)}, ${y.toFixed(2)})` , x + (15 / zoom), y - (15 / zoom));
+  text(`(${pointX.toFixed(2)}, ${pointY.toFixed(2)})` , pointX + (15 / zoom), pointY - (15 / zoom));
 }
 
 function degToRad(degrees){
@@ -95,18 +135,8 @@ function mouseWheel(event){
   return false;
 }
 
-function mousePressed() {
-  isPanning = true;
-  lastMouseX = mouseX;
-  lastMouseY = mouseY;
-}
-
-function mouseReleased() {
-  isPanning = false;
-}
-
 function mouseDragged() {
-  if (isPanning) {
+  if (isPanning && !isDragging) {
     let dx = mouseX - lastMouseX;
     let dy = mouseY - lastMouseY;
 
@@ -135,4 +165,21 @@ function draw(){
   drawGrid();
   drawUnitCircle(theta, r);
   pop();
+
+  if (isDragging){
+    let worldMouse = screenToWorld(mouseX, mouseY);
+
+    pointX = worldMouse.x + offsetX;
+    pointY = worldMouse.y + offsetY;
+
+    let new_r = dist(0, 0, pointX, pointY);
+    select('#r').value(new_r);
+
+    let new_theta_rad = atan2(pointY, pointX);
+    let new_theta_deg = new_theta_rad * (180 / Math.PI);
+
+    if (new_theta_deg < 0) new_theta_deg += 360;
+
+    select('#theta').value(new_theta_deg);
+  }
 }
