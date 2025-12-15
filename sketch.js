@@ -1,16 +1,14 @@
 let zoom = 1;
-let panX = 0;
-let panY = 0;
+let panX = 0, panY = 0;
 
-let lastMouseX = 0;
-let lastMouseY = 0;
+let lastMouseX = 0, lastMouseY = 0;
 let isPanning = false;
 let isDragging = false;
 
 let offsetX = 0, offsetY = 0;
 let pointX = 0, pointY = 0;
 
-function screenToWorld(screenX, screenY){
+function screenToWorld(screenX, screenY) {
   let untranslatedX = screenX - width / 2;
   let untranslatedY = screenY - height / 2;
 
@@ -23,13 +21,13 @@ function screenToWorld(screenX, screenY){
   return createVector(worldX, worldY);
 }
 
-function mousePressed(){
+function mousePressed() {
   let worldMouse = screenToWorld(mouseX, mouseY);
   let r_point = 10 / zoom;
   
   let d = dist(worldMouse.x, worldMouse.y, pointX, pointY);
 
-  if (d < r_point){
+  if (d < r_point) {
     isDragging = true;
     offsetX = pointX - worldMouse.x;
     offsetY = pointY - worldMouse.y;
@@ -41,12 +39,12 @@ function mousePressed(){
   lastMouseY = mouseY;
 }
 
-function mouseReleased(){
+function mouseReleased() {
   isDragging = false;
   isPanning = false;
 }
 
-function drawUnitCircle(angleInDegrees, r){
+function drawUnitCircle(angleInDegrees, r) {
   noFill();
   stroke(225);
   strokeWeight(2 / zoom);
@@ -57,6 +55,71 @@ function drawUnitCircle(angleInDegrees, r){
   pointX = r * cos(theta_rad);
   pointY = r * sin(theta_rad);
 
+  // Angle Arc Visualization ---
+  noFill();
+  stroke(255, 165, 0);
+  strokeWeight(2 / zoom);
+  arc(0, 0, r * 0.4, r * 0.4, 0, theta_rad);
+
+  // Sine And Cosine
+  stroke(50, 200, 50);
+  fill(50, 200, 50, 50);
+  strokeWeight(2 / zoom);
+
+  line(0, 0, pointX, pointY); // Hypo
+  line(0, 0, pointX, 0); // Adj
+  line(pointX, 0, pointX, pointY); // Opp
+
+  const minAngleOffset = 0.001;
+
+  // Tangent and Secant
+  if (abs(cos(theta_rad)) > minAngleOffset) {
+    let tanX_end = r;
+    let tanY_end = r * tan(theta_rad);
+
+    if (abs(tanY_end) < 10000 * zoom){
+      // Tangent
+      stroke(0, 255, 255);
+      strokeWeight(2 / zoom);
+      line(tanX_end, 0,tanX_end, tanY_end);
+
+      // Secant
+      stroke(255, 0, 255);
+      strokeWeight(2 / zoom);
+      line(0, 0, tanX_end, tanY_end);
+
+      // Circle
+      stroke(255, 0, 255);
+      strokeWeight(2 / zoom);
+      fill(255, 0, 255);
+      circle(tanX_end, tanY_end, 5 / zoom);
+    }
+  }
+
+  // Cotangent And Cosecant
+  if (abs(sin(theta_rad)) > minAngleOffset) {
+    let cotX_end = r / tan(theta_rad);
+    let cotY_end = r;
+    
+    if (abs(cotX_end) < 10000 * zoom){
+      // Cotangent
+      stroke(255, 255, 0);
+      strokeWeight(2 / zoom);
+      line(0, cotY_end, cotX_end, cotY_end);
+
+      // Cosecant
+      stroke(255, 140, 0);
+      strokeWeight(2 / zoom);
+      line(0, 0, cotX_end, cotY_end);
+
+      stroke(255, 120, 0);
+      strokeWeight(2 / zoom);
+      fill(255, 120, 0);
+      circle(cotX_end, cotY_end, 5 / zoom);
+    }
+  }
+
+  // Draw The Triangle
   stroke(50, 200, 50);
   fill(50, 200, 50, 100);
   strokeWeight(2 / zoom);
@@ -73,11 +136,11 @@ function drawUnitCircle(angleInDegrees, r){
   text(`(${pointX.toFixed(2)}, ${pointY.toFixed(2)})` , pointX + (15 / zoom), pointY - (15 / zoom));
 }
 
-function degToRad(degrees){
+function degToRad(degrees) {
   return degrees * (Math.PI / 180);
 }
 
-function drawGrid(){
+function drawGrid() {
   const idealPixelSize = 75; 
   const approxCellSize = idealPixelSize / zoom;
 
@@ -105,7 +168,7 @@ function drawGrid(){
   let firstX = Math.floor(startX / cellSize) * cellSize;
   let firstY = Math.floor(startY / cellSize) * cellSize;
 
-  for (let x = firstX; x <= endX; x += cellSize){
+  for (let x = firstX; x <= endX; x += cellSize) {
       stroke(225);
       line(x, startY, x, endY);
 
@@ -114,7 +177,7 @@ function drawGrid(){
       text(x, x, 12 / zoom);
     }
 
-    for (let y = firstY; y <= endY; y += cellSize){
+    for (let y = firstY; y <= endY; y += cellSize) {
       stroke(225);
       line(startX, y, endX, y);
 
@@ -124,7 +187,7 @@ function drawGrid(){
     }
 }
 
-function mouseWheel(event){
+function mouseWheel(event) {
   let zoomFactor = 0.05;
 
   if (event.delta > 0) zoom -= zoomFactor;
@@ -148,11 +211,11 @@ function mouseDragged() {
   }
 }
 
-function setup(){
+function setup() {
   createCanvas(windowWidth - 40, windowHeight - 40);
 }
 
-function draw(){
+function draw() {
   background(0);
 
   let r = Number(select('#r').value());
@@ -166,7 +229,7 @@ function draw(){
   drawUnitCircle(theta, r);
   pop();
 
-  if (isDragging){
+  if (isDragging) {
     let worldMouse = screenToWorld(mouseX, mouseY);
 
     pointX = worldMouse.x + offsetX;
