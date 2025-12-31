@@ -36,13 +36,13 @@ const COLORS = {
   csc: [200, 100, 255],
   versin: [0, 255, 255],
   
-  // Text Colors
+  // Text Color
   text: [225, 225, 225],
 };
 
 const labelButton = document.getElementById('labels');
 let showLabels = false;
-  
+
 labelButton.onclick = function(){
   showLabels = !showLabels;
   
@@ -209,12 +209,12 @@ function drawUnitCircle(angleInDegrees, r) {
     strokeWeight(4 / zoom);
     line(0, r, cotX_point, r);
 
-    if (showLabels) {
-      // Cosecant
-      stroke(COLORS.csc);
-      strokeWeight(2 / zoom);
-      line(0, 0, cotX_point, cotY_point);
+    // Cosecant
+    stroke(COLORS.csc);
+    strokeWeight(2 / zoom);
+    line(0, 0, cotX_point, cotY_point);
 
+    if (showLabels) {
       drawLabel(`cot θ = ${cotValue.toFixed(2)}`, COLORS.cot, 16, cotX_point / 2, cotY_point + 15 / zoom);
       drawLabel(`csc θ = ${cscValue.toFixed(2)}`, COLORS.csc, 16, cotX_point / 2, cotY_point / 2);
     }
@@ -234,6 +234,28 @@ function drawUnitCircle(angleInDegrees, r) {
   fill(COLORS.point);
   circle(pointX, pointY, 10 / zoom);
   drawLabel(`(${pointX.toFixed(2)}, ${pointY.toFixed(2)})`, COLORS.text, 14, pointX + (18 / zoom), pointY + (18 / zoom));
+  updateTrigList(theta_rad, r);
+}
+
+function updateTrigList(thetaRad, r) {
+  const sinV = sin(thetaRad);
+  const cosV = cos(thetaRad);
+  const tanV = abs(cosV) > 0.001 ? tan(thetaRad) : Infinity;
+  const cscV = abs(sinV) > 0.001 ? 1 / sinV : Infinity;
+  const secV = abs(cosV) > 0.001 ? 1 / cosV : Infinity;
+  const cotV = abs(sinV) > 0.001 ? cosV / sinV : Infinity;
+  const versinV = 1 - cosV;
+
+  const list = document.getElementById('trigList');
+  list.innerHTML = `
+    <li>sin θ = ${sinV.toFixed(4)}</li>
+    <li>cos θ = ${cosV.toFixed(4)}</li>
+    <li>tan θ = ${tanV === Infinity ? "∞" : tanV.toFixed(4)}</li>
+    <li>csc θ = ${cscV === Infinity ? "∞" : cscV.toFixed(4)}</li>
+    <li>sec θ = ${secV === Infinity ? "∞" : secV.toFixed(4)}</li>
+    <li>cot θ = ${cotV === Infinity ? "∞" : cotV.toFixed(4)}</li>
+    <li>versin θ = ${versinV.toFixed(4)}</li>
+  `;
 }
 
 function drawGrid() {
